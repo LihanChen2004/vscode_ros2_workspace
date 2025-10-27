@@ -2,13 +2,14 @@ FROM osrf/ros:jazzy-desktop-full
 
 # Set up dev packages
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update \
-   && apt-get -y install --no-install-recommends \
-    bash-completion \
+RUN apt-get update && \
+    apt-get -y install --no-install-recommends \
+    wget \
     gdb \
     gettext-base \
     git-core \
     openssh-client \
+    pre-commit \
     python3-argcomplete \
     python3-colcon-common-extensions \
     python3-rosdep \
@@ -19,13 +20,13 @@ RUN apt-get update \
     libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-util1 \
     libxcb-xinerama0 libxcb-xkb1 libxkbcommon0 libxkbcommon-x11-0 \
     libglu1-mesa libxi6 libsm6 libxrender1 libfontconfig1 \
-   # Clean up
+    # Clean up
     && apt-get autoremove -y \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
 ENV DEBIAN_FRONTEND=dialog
 
-### For Windows, uncomment the following lines to install WSLg dependencies and utilize vGPU acceleration 
+### For Windows, uncomment the following lines to install WSLg dependencies and utilize vGPU acceleration
 # ENV DEBIAN_FRONTEND=noninteractive
 # RUN apt-get update \
 #    && apt-get -y install \
@@ -43,7 +44,7 @@ ENV DEBIAN_FRONTEND=dialog
 
 ################
 # uncomment below for nvidia support
-# Expose the nvidia driver to allow opengl 
+# Expose the nvidia driver to allow opengl
 # Dependencies for glvnd and X11.
 ################
 # RUN apt-get update \
@@ -74,7 +75,7 @@ ENV DEBIAN_FRONTEND=dialog
 #    && rm -rf /var/lib/apt/lists/*
 # ENV DEBIAN_FRONTEND=dialog
 
-# Set up auto-source of workspace for ros 
+# Set up auto-source of workspace for ros
 ARG USERNAME=ros
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
@@ -100,16 +101,18 @@ RUN echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME \
     && touch /home/$USERNAME/.sudo_as_admin_successful
 
+USER $USERNAME
+RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/v1.2.1/zsh-in-docker.sh)" -- \
+    -t https://github.com/denysdovhan/spaceship-prompt \
+    -a 'SPACESHIP_PROMPT_ADD_NEWLINE="false"' \
+    -a 'SPACESHIP_PROMPT_SEPARATE_LINE="false"' \
+    -p https://github.com/zsh-users/zsh-autosuggestions \
+    -p https://github.com/zsh-users/zsh-completions \
+    -p https://github.com/zdharma-continuum/fast-syntax-highlighting
+
 # Set up autocompletion for user
-RUN  echo "if [ -f /opt/ros/${ROS_DISTRO}/setup.bash ]; then source /opt/ros/${ROS_DISTRO}/setup.bash; fi" >> /home/$USERNAME/.bashrc \
-  && echo "if [ -f /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash ]; then source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash; fi" >> /home/$USERNAME/.bashrc \
-  && echo "if [ -f /usr/share/vcs2l-completion/vcs.bash ]; then source /usr/share/vcs2l-completion/vcs.bash; fi" >> /home/$USERNAME/.bashrc \
-  # Set up auto-source of workspace for user
-  && echo "if [ -f ${WORKSPACE}/install/setup.bash ]; then source ${WORKSPACE}/install/setup.bash; fi" >> /home/$USERNAME/.bashrc
-
-# Set up python symlinks for vscode paths
-RUN PYTHON_VERSION=$(python3 -c "import sys; print(f'{sys.version_info[0]}.{sys.version_info[1]}')") \
- && tgt="/opt/ros/${ROS_DISTRO}/lib/python${PYTHON_VERSION}/site-packages" \
- && [ -d "$tgt" ] && ln -s "$tgt" "/opt/ros/${ROS_DISTRO}/lib/ros_site_packages"
-
-ENV AMENT_CPPCHECK_ALLOW_SLOW_VERSIONS=1
+RUN echo "if [ -f /opt/ros/${ROS_DISTRO}/setup.zsh ]; then source /opt/ros/${ROS_DISTRO}/setup.zsh; fi" >> /home/$USERNAME/.zshrc \
+    && echo "if [ -f /usr/share/colcon_argcomplete/hook/colcon-argcomplete.zsh ]; then source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.zsh; fi" >> /home/$USERNAME/.zshrc \
+    && echo "if [ -f /usr/share/vcs2l-completion/vcs.zsh ]; then source /usr/share/vcs2l-completion/vcs.zsh; fi" >> /home/$USERNAME/.zshrc \
+    # Set up auto-source of workspace for user
+    && echo "if [ -f ${WORKSPACE}/install/setup.zsh ]; then source ${WORKSPACE}/install/setup.zsh; fi" >> /home/$USERNAME/.zshrc

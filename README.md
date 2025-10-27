@@ -8,14 +8,14 @@ See [how I develop with vscode and ros2](https://www.allisonthackston.com/articl
 
 ### Style
 
-ROS2-approved formatters are included in the IDE.  
+ROS2-approved formatters are included in the IDE.
 
-* **c++** uncrustify; config from `ament_uncrustify`
-* **python** autopep8; vscode settings consistent with the [style guide](https://docs.ros.org/en/jazzy/The-ROS2-Project/Contributing/Code-Style-Language-Versions.html)
+* **c++** clang; config from `ament_clang_format`, `ament_clang_tidy`
+* **python** black; config from `ament_black`
 
 ### Tasks
 
-There are many pre-defined tasks, see [`.vscode/tasks.json`](.vscode/tasks.json) for a complete listing.  Feel free to adjust them to suit your needs.  
+There are many pre-defined tasks, see [`.vscode/tasks.json`](.vscode/tasks.json) for a complete listing.  Feel free to adjust them to suit your needs.
 
 Take a look at [how I develop using tasks](https://www.allisonthackston.com/articles/vscode_tasks.html) for an idea on how I use tasks in my development.
 
@@ -31,7 +31,7 @@ To remove a linter just delete it's name from this line:
 
 ```yaml
       matrix:
-          linter: [cppcheck, cpplint, uncrustify, lint_cmake, xmllint, flake8, pep257]
+          linter: [clang_format, clang_tidy, black, lint_cmake, xmllint]
 ```
 
 ## How to use this template
@@ -62,7 +62,7 @@ Click on "use this template"
 On the next dialog, name the repository you would like to start and decide if you want all of the branches, or the default branch.
 
 > [!IMPORTANT]
-> 
+>
 > The new default branch supports any version of ROS by setting the appropriate version you want in the 'FROM' line in `.devcontainer/Dockerfile`
 >
 > By default, this is set to `osrf/ros:jazzy-desktop-full`
@@ -268,7 +268,7 @@ results in:
    Current serial number in output stream:  47
 ```
 
-Solution is, to follow the guide and the test with nvidia-smi as indicated here: 
+Solution is, to follow the guide and the test with nvidia-smi as indicated here:
 [docker-nvidia(for GPU acceleration on Nvidia GPU hosts)](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker)
 
 #### more information
