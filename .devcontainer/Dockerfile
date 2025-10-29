@@ -9,7 +9,8 @@ RUN apt-get update && \
     gettext-base \
     git-core \
     openssh-client \
-    pre-commit \
+    clangd \
+    python3-pip \
     python3-argcomplete \
     python3-colcon-common-extensions \
     python3-rosdep \
@@ -116,3 +117,8 @@ RUN echo "if [ -f /opt/ros/${ROS_DISTRO}/setup.zsh ]; then source /opt/ros/${ROS
     && echo "if [ -f /usr/share/vcs2l-completion/vcs.zsh ]; then source /usr/share/vcs2l-completion/vcs.zsh; fi" >> /home/$USERNAME/.zshrc \
     # Set up auto-source of workspace for user
     && echo "if [ -f ${WORKSPACE}/install/setup.zsh ]; then source ${WORKSPACE}/install/setup.zsh; fi" >> /home/$USERNAME/.zshrc
+
+# Set up python symlinks for vscode paths
+RUN PYTHON_VERSION=$(python3 -c "import sys; print(f'{sys.version_info[0]}.{sys.version_info[1]}')") \
+ && tgt="/opt/ros/${ROS_DISTRO}/lib/python${PYTHON_VERSION}/site-packages" \
+ && [ -d "$tgt" ] && sudo ln -s "$tgt" "/opt/ros/${ROS_DISTRO}/lib/ros_site_packages"
