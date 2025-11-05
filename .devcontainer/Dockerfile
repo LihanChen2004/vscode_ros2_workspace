@@ -4,6 +4,7 @@ FROM osrf/ros:jazzy-desktop-full
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get -y install --no-install-recommends \
+    zsh \
     wget \
     gdb \
     gettext-base \
@@ -102,14 +103,9 @@ RUN echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME \
     && touch /home/$USERNAME/.sudo_as_admin_successful
 
-USER $USERNAME
-RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/v1.2.1/zsh-in-docker.sh)" -- \
-    -t https://github.com/denysdovhan/spaceship-prompt \
-    -a 'SPACESHIP_PROMPT_ADD_NEWLINE="false"' \
-    -a 'SPACESHIP_PROMPT_SEPARATE_LINE="false"' \
-    -p https://github.com/zsh-users/zsh-autosuggestions \
-    -p https://github.com/zsh-users/zsh-completions \
-    -p https://github.com/zdharma-continuum/fast-syntax-highlighting
+# Copy .zshrc to user's home with ownership and set zsh as login shell
+COPY --chown=$USERNAME:$USERNAME .zshrc /home/$USERNAME/.zshrc
+RUN chsh -s /bin/zsh $USERNAME
 
 # Set up autocompletion for user
 RUN echo "if [ -f /opt/ros/${ROS_DISTRO}/setup.zsh ]; then source /opt/ros/${ROS_DISTRO}/setup.zsh; fi" >> /home/$USERNAME/.zshrc \
@@ -120,5 +116,5 @@ RUN echo "if [ -f /opt/ros/${ROS_DISTRO}/setup.zsh ]; then source /opt/ros/${ROS
 
 # Set up python symlinks for vscode paths
 RUN PYTHON_VERSION=$(python3 -c "import sys; print(f'{sys.version_info[0]}.{sys.version_info[1]}')") \
- && tgt="/opt/ros/${ROS_DISTRO}/lib/python${PYTHON_VERSION}/site-packages" \
- && [ -d "$tgt" ] && sudo ln -s "$tgt" "/opt/ros/${ROS_DISTRO}/lib/ros_site_packages"
+    && tgt="/opt/ros/${ROS_DISTRO}/lib/python${PYTHON_VERSION}/site-packages" \
+    && [ -d "$tgt" ] && ln -s "$tgt" "/opt/ros/${ROS_DISTRO}/lib/ros_site_packages"

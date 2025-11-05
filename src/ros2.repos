@@ -5,7 +5,7 @@
 # Example:
 ############
 repositories:
-  pb_omni_pid_pursuit_controller:
+  scorpio:
     type: git
-    url: https://github.com/SMBU-PolarBear-Robotics-Team/pb_omni_pid_pursuit_controller.git
+    url: https://github.com/LihanChen2004/scorpio.git
     version: main

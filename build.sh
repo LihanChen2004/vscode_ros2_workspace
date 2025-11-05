@@ -7,4 +7,5 @@ BUILD_TYPE=RelWithDebInfo
 colcon build \
   --merge-install \
   --symlink-install \
-  --cmake-args "-DCMAKE_BUILD_TYPE=$BUILD_TYPE"
+  --cmake-args "-DCMAKE_BUILD_TYPE=$BUILD_TYPE" \
+  --parallel-workers 10
