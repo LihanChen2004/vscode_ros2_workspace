@@ -1,5 +1,10 @@
 FROM osrf/ros:jazzy-desktop-full
 
+# Change apt sources to USTC mirror for faster downloads in China
+# Support both traditional format (Ubuntu 22.04 and earlier) and DEB822 format (Ubuntu 24.04+)
+RUN sed -i 's@//.*archive.ubuntu.com@//mirrors.ustc.edu.cn@g' /etc/apt/sources.list 2>/dev/null || true && \
+    sed -i 's@//.*archive.ubuntu.com@//mirrors.ustc.edu.cn@g' /etc/apt/sources.list.d/ubuntu.sources 2>/dev/null || true
+
 # Set up dev packages
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
@@ -91,21 +96,15 @@ RUN set -eux; \
         echo "Renamed $existing_user to $USERNAME"; \
     else \
         groupadd --gid $USER_GID $USERNAME && \
-        useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME && \
+        useradd -s /bin/zsh --uid $USER_UID --gid $USER_GID -m $USERNAME && \
         echo "Created new user $USERNAME"; \
     fi
-# Ensure necessary directories and permissions
-RUN mkdir -p /home/$USERNAME /run/user/$USER_UID && \
-    chown -R $USER_UID:$USER_GID /home/$USERNAME /run/user/$USER_UID
 
 # Add sudo support for the non-root user
-RUN echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USERNAME \
-    && chmod 0440 /etc/sudoers.d/$USERNAME \
-    && touch /home/$USERNAME/.sudo_as_admin_successful
+RUN echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-# Copy .zshrc to user's home with ownership and set zsh as login shell
+# Copy .zshrc to user's home
 COPY --chown=$USERNAME:$USERNAME .zshrc /home/$USERNAME/.zshrc
-RUN chsh -s /bin/zsh $USERNAME
 
 # Set up autocompletion for user
 RUN echo "if [ -f /opt/ros/${ROS_DISTRO}/setup.zsh ]; then source /opt/ros/${ROS_DISTRO}/setup.zsh; fi" >> /home/$USERNAME/.zshrc \

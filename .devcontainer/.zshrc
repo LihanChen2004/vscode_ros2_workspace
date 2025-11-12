@@ -14,7 +14,7 @@ autoload -Uz _zinit
 
 # Load starship theme with catppuccin-powerline preset
 zinit ice as"command" from"gh-r" \
-    atclone"./starship init zsh > init.zsh; ./starship completions zsh > _starship; ./starship preset catppuccin-powerline -o ~/.config/starship.toml" \
+    atclone"./starship init zsh > init.zsh; ./starship completions zsh > _starship" \
     atpull"%atclone" src"init.zsh"
 zinit light starship/starship
 
@@ -35,7 +35,7 @@ zinit light trapd00r/LS_COLORS
 setopt INTERACTIVE_COMMENTS   # Allow comments in interactive shell (use # in command line)
 setopt NO_NOMATCH             # Prevent errors when glob patterns don't match any files
 
-# Use Ctrl/Alt + Arrows to Navigate Between Words 
+# Use Ctrl/Alt + Arrows to Navigate Between Words
 bindkey "^[[1;5C" forward-word
 bindkey "^[[1;5D" backward-word
 autoload -U select-word-style && select-word-style bash
